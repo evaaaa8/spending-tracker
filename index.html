@@ -6,5 +6,33 @@
     </head>
     <body>
         <h1>Spending Tracker</h1>
-    </body>
-</html>
+
+        <div>
+            <button onclick="showForm('expense')">Add Expense</button>"
+            <button onclick="showForm('income')">Add Income</button>"
+        </div>
+
+            <form id="entryForm" style="display: none;">
+                <input type="date" id="date" required>
+                <input type="number" id="amount" placeholder="Amount" required>
+                <input type="text" id="description" placeholder="What was it for?" required>
+        <select id="category">
+        <option value="food">Food</option>
+        <option value="shopping">Shopping</option>
+        <option value="school">School</option>
+        <option value="rent">Rent</option>
+        <option value="other">Other</option>
+        </select>
+        <button type="submit">Save</button>
+    </form>
+
+    <h2>Monthly Net: <span id="monthlyNet">$0</span></h2>
+
+    <div id="entryList"></div>
+
+    <script src="script.js"></script>
+
+
+
+        </body>
+    </html>
