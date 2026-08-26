@@ -186,36 +186,25 @@ let pieChartInstance = null;
 function renderCharts() {
   const entries = JSON.parse(localStorage.getItem('entries')) || [];
 
-  // ---- LINE CHART: total spending per month ----
+    // ---- LINE CHART: total spending per month ----
   const spendingByMonth = {};
 
   entries.forEach(e => {
-    if (e.type !== 'expense') return; // only count expenses
-    const label = monthLabel(e.date);
-    spendingByMonth[label] = (spendingByMonth[label] || 0) + e.amount;
+    if (e.type !== 'expense') return;
+    const monthKey = e.date.slice(0, 7); // "2026-08" -- reliable for sorting
+    spendingByMonth[monthKey] = (spendingByMonth[monthKey] || 0) + e.amount;
   });
 
-  // Sort chronologically (oldest to newest) for a left-to-right timeline
-  const sortedMonths = Object.keys(spendingByMonth).sort((a, b) => {
-    return new Date(a) - new Date(b);
+  // Sort using the "YYYY-MM" key -- plain string sort works correctly here
+  const sortedKeys = Object.keys(spendingByMonth).sort();
+
+  const sortedMonths = sortedKeys.map(key => {
+    const [year, month] = key.split('-');
+    const date = new Date(year, month - 1, 1);
+    return date.toLocaleString('default', { month: 'long', year: 'numeric' });
   });
 
-  const lineData = sortedMonths.map(m => spendingByMonth[m]);
-
-  if (lineChartInstance) lineChartInstance.destroy(); // clear old chart before redrawing
-
-  lineChartInstance = new Chart(document.getElementById('lineChart'), {
-    type: 'line',
-    data: {
-      labels: sortedMonths,
-      datasets: [{
-        label: 'Spending per Month',
-        data: lineData,
-        borderColor: 'red',
-        fill: false
-      }]
-    }
-  });
+  const lineData = sortedKeys.map(key => spendingByMonth[key]);
 
     // ---- PIE CHART: percentage spent per category (this year) ----
   const currentYear = new Date().getFullYear().toString();

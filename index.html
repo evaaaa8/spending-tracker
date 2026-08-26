@@ -9,6 +9,11 @@
     <body>
         <h1 style="text-align: center;">Spending Tracker</h1>
 
+        <div style="text-align: center;">
+            <button onclick="showForm('expense')">Add Expense</button>
+            <button onclick="showForm('income')">Add Income</button>
+        </div>
+
         <h2 style="text-align: center;">Yearly Statistics</h2>
         
         <div class="charts-container">
@@ -17,13 +22,6 @@
                 <canvas id="pieChart"></canvas>
                 <div id="pieLegend" class="pie-legend"></div>
             </div>
-        </div>
-
-
-        
-        <div>
-            <button onclick="showForm('expense')">Add Expense</button>
-            <button onclick="showForm('income')">Add Income</button>
         </div>
 
         <form id="entryForm" style="display: none;">
