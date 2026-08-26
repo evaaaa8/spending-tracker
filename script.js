@@ -74,33 +74,41 @@ function monthLabel(dateStr) {
 function renderEntries() {
   const entries = JSON.parse(localStorage.getItem('entries')) || [];
 
-  // Keep track of each entry's original position in localStorage,
-  // since we need that index for deleteEntry to still work after sorting
   const withIndex = entries.map((e, i) => ({ ...e, originalIndex: i }));
-
-  // Sort newest date first
   withIndex.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  const listDiv = document.getElementById('entryList');
-
-  let html = '';
-  let lastMonth = null;
-
+  // Group entries by month label first
+  const groups = {};
   withIndex.forEach(e => {
     const label = monthLabel(e.date);
+    if (!groups[label]) groups[label] = [];
+    groups[label].push(e);
+  });
 
-    if (label !== lastMonth) {
-      html += `<h3>${label}</h3>`;
-      lastMonth = label;
-    }
+  const listDiv = document.getElementById('entryList');
+  let html = '';
 
-    html += `
-      <p>
-        ${e.date} — ${e.type === 'income' ? '+' : '-'}$${e.amount.toFixed(2)}
-        (${e.category}): ${e.description}
-        <button onclick="deleteEntry(${e.originalIndex})" class="delete-btn">✕</button>
-      </p>
-    `;
+  // Object.keys(groups) preserves insertion order, which is already
+  // newest-to-oldest since withIndex was sorted before grouping
+  Object.keys(groups).forEach(label => {
+    const monthEntries = groups[label];
+
+    const net = monthEntries.reduce((total, e) => {
+      return e.type === 'income' ? total + e.amount : total - e.amount;
+    }, 0);
+
+    html += `<h1>${label}</h1>`;
+    html += `<h2>Net: $${net.toFixed(2)}</h2>`;
+
+    monthEntries.forEach(e => {
+      html += `
+        <p>
+          ${e.date} — ${e.type === 'income' ? '+' : '-'}$${e.amount.toFixed(2)}
+          (${e.category}): ${e.description}
+          <button onclick="deleteEntry(${e.originalIndex})" class="delete-btn">✕</button>
+        </p>
+      `;
+    });
   });
 
   listDiv.innerHTML = html;
