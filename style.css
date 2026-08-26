@@ -10,3 +10,17 @@ h1 {
   font-size: 16px;
   margin-left: 8px;
 }
+
+page-container {
+  display: flex;
+  justify-content: center;
+}
+
+.left-column {
+  width: 50%;
+  text-align: center;
+}
+
+.right-column {
+  width: 50%;
+}

@@ -4,9 +4,12 @@
         <title> My Spending Tracker </title>
         <link rel="stylesheet" href="style.css">
     </head>
-    <body>
-        <h1>Spending Tracker</h1>
 
+    <body>
+        <h1 style="text-align: center;">Spending Tracker</h1>
+
+        <div class="page-container">
+            <div class="left-column"> 
         <div>
             <button onclick="showForm('expense')">Add Expense</button>
             <button onclick="showForm('income')">Add Income</button>
@@ -28,6 +31,13 @@
         </form>
 
         <div id="entryList"></div>
+        </div>
+
+        <div class="right-column">
+            <!--charts go here later  --> 
+        </div>
+
+        </div>
 
         <script src="script.js"></script>
 
