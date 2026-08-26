@@ -61,7 +61,6 @@ function deleteEntry(index) {
   localStorage.setItem('entries', JSON.stringify(entries));
 
   renderEntries();
-  updateMonthlyNet();
 }
 
 function monthLabel(dateStr) {
@@ -129,4 +128,3 @@ function updateMonthlyNet() {
 }
 
 renderEntries();
-updateMonthlyNet();
