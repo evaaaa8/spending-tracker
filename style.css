@@ -11,18 +11,26 @@ h1 {
   margin-left: 8px;
 }
 
-page-container {
-  display: flex;
-  justify-content: center;
+.page-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-.left-column {
-  width: 50%;
+.month-entries {
   text-align: center;
 }
 
-.right-column {
-  width: 50%;
+.month-chart-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.month-chart-cell canvas {
+  max-width: 180px;
+  max-height: 180px;
 }
 
 .charts-container {

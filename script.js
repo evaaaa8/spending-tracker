@@ -84,13 +84,14 @@ function monthLabel(dateStr) {
   return date.toLocaleString('default', { month: 'long', year: 'numeric' });
 }
 
+let monthChartInstances = [];
+
 function renderEntries() {
   const entries = JSON.parse(localStorage.getItem('entries')) || [];
 
   const withIndex = entries.map((e, i) => ({ ...e, originalIndex: i }));
   withIndex.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  // Group entries by month label first
   const groups = {};
   withIndex.forEach(e => {
     const label = monthLabel(e.date);
@@ -98,18 +99,18 @@ function renderEntries() {
     groups[label].push(e);
   });
 
-  const listDiv = document.getElementById('entryList');
+  const container = document.getElementById('pageContainer');
   let html = '';
+  const monthLabels = Object.keys(groups);
 
-  // Object.keys(groups) preserves insertion order, which is already
-  // newest-to-oldest since withIndex was sorted before grouping
-  Object.keys(groups).forEach(label => {
+  monthLabels.forEach((label, idx) => {
     const monthEntries = groups[label];
 
     const net = monthEntries.reduce((total, e) => {
       return e.type === 'income' ? total + e.amount : total - e.amount;
     }, 0);
 
+    html += `<div class="month-entries">`;
     html += `<h1>${label}</h1>`;
     html += `<h2>Net: $${net.toFixed(2)}</h2>`;
 
@@ -122,9 +123,47 @@ function renderEntries() {
         </p>
       `;
     });
+
+    html += `</div>`;
+    html += `<div class="month-chart-cell"><canvas id="monthPie${idx}"></canvas></div>`;
   });
 
-  listDiv.innerHTML = html;
+  container.innerHTML = html;
+
+  // Destroy old month charts before drawing new ones, same reasoning as the yearly pie chart
+  monthChartInstances.forEach(chart => chart.destroy());
+  monthChartInstances = [];
+
+  const pieColors = ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22'];
+
+  monthLabels.forEach((label, idx) => {
+    const monthEntries = groups[label];
+    const categoryTotals = {};
+
+    monthEntries.forEach(e => {
+      if (e.type !== 'expense') return;
+      categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.amount;
+    });
+
+    const canvas = document.getElementById(`monthPie${idx}`);
+    if (!canvas) return;
+
+    const chart = new Chart(canvas, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(categoryTotals),
+        datasets: [{
+          data: Object.values(categoryTotals),
+          backgroundColor: pieColors
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    monthChartInstances.push(chart);
+  });
 }
 
 function updateMonthlyNet() {
