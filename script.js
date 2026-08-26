@@ -267,5 +267,7 @@ function renderCharts() {
   }).join('');
 }
 
+// comment 
+
 renderEntries();
 renderCharts();
