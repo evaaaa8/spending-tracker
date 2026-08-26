@@ -36,3 +36,29 @@ page-container {
   max-width: 400px;
   max-height: 300px;
 }
+
+.pie-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.legend-color-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}

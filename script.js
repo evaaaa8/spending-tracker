@@ -178,18 +178,19 @@ function renderCharts() {
     }
   });
 
-  // ---- PIE CHART: percentage spent per category (this year) ----
+    // ---- PIE CHART: percentage spent per category (this year) ----
   const currentYear = new Date().getFullYear().toString();
   const categoryTotals = {};
 
   entries.forEach(e => {
     if (e.type !== 'expense') return;
-    if (!e.date.startsWith(currentYear)) return; // only this year
+    if (!e.date.startsWith(currentYear)) return;
     categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.amount;
   });
 
   const categoryLabels = Object.keys(categoryTotals);
   const categoryData = Object.values(categoryTotals);
+  const pieColors = ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22'];
 
   if (pieChartInstance) pieChartInstance.destroy();
 
@@ -199,10 +200,32 @@ function renderCharts() {
       labels: categoryLabels,
       datasets: [{
         data: categoryData,
-        backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22']
+        backgroundColor: pieColors
       }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false } // hide Chart.js's built-in legend, we're using our own
+      }
     }
   });
+
+  // Build the custom legend
+  const total = categoryData.reduce((sum, val) => sum + val, 0);
+  const legendDiv = document.getElementById('pieLegend');
+
+  legendDiv.innerHTML = categoryLabels.map((label, i) => {
+    const percent = total > 0 ? ((categoryData[i] / total) * 100).toFixed(1) : 0;
+    const color = pieColors[i % pieColors.length];
+    const displayName = label.charAt(0).toUpperCase() + label.slice(1);
+
+    return `
+      <div class="legend-item">
+        <div class="legend-color-box" style="background-color: ${color};"></div>
+        <span>${displayName}: ${percent}%</span>
+      </div>
+    `;
+  }).join('');
 }
 
 renderEntries();
