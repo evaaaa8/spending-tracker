@@ -186,17 +186,16 @@ let pieChartInstance = null;
 function renderCharts() {
   const entries = JSON.parse(localStorage.getItem('entries')) || [];
 
-    // ---- LINE CHART: total spending per month ----
+  // ---- LINE CHART: total spending per month, in true chronological order ----
   const spendingByMonth = {};
 
   entries.forEach(e => {
     if (e.type !== 'expense') return;
-    const monthKey = e.date.slice(0, 7); // "2026-08" -- reliable for sorting
+    const monthKey = e.date.slice(0, 7); // e.g. "2025-10"
     spendingByMonth[monthKey] = (spendingByMonth[monthKey] || 0) + e.amount;
   });
 
-  // Sort using the "YYYY-MM" key -- plain string sort works correctly here
-  const sortedKeys = Object.keys(spendingByMonth).sort();
+  const sortedKeys = Object.keys(spendingByMonth).sort(); // "YYYY-MM" sorts correctly as plain text
 
   const sortedMonths = sortedKeys.map(key => {
     const [year, month] = key.split('-');
@@ -206,7 +205,22 @@ function renderCharts() {
 
   const lineData = sortedKeys.map(key => spendingByMonth[key]);
 
-    // ---- PIE CHART: percentage spent per category (this year) ----
+  if (lineChartInstance) lineChartInstance.destroy();
+
+  lineChartInstance = new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: {
+      labels: sortedMonths,
+      datasets: [{
+        label: 'Spending per Month',
+        data: lineData,
+        borderColor: 'red',
+        fill: false
+      }]
+    }
+  });
+
+  // ---- PIE CHART: percentage spent per category (this year) ----
   const currentYear = new Date().getFullYear().toString();
   const categoryTotals = {};
 
@@ -232,13 +246,10 @@ function renderCharts() {
       }]
     },
     options: {
-      plugins: {
-        legend: { display: false } // hide Chart.js's built-in legend, we're using our own
-      }
+      plugins: { legend: { display: false } }
     }
   });
 
-  // Build the custom legend
   const total = categoryData.reduce((sum, val) => sum + val, 0);
   const legendDiv = document.getElementById('pieLegend');
 
