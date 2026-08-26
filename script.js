@@ -5,26 +5,41 @@ function showForm(type) {
   document.getElementById('entryForm').style.display = 'block';
 }
 
+function restrictAmount(input) {
+  let value = input.value.replace(/[^\d.]/g, '');
+
+  const parts = value.split('.');
+  if (parts.length > 2) {
+    value = parts[0] + '.' + parts.slice(1).join('');
+  }
+
+  if (value.includes('.')) {
+    const [whole, decimal] = value.split('.');
+    value = whole + '.' + decimal.slice(0, 2);
+  }
+
+  input.value = value;
+}
+
 document.getElementById('entryForm').addEventListener('submit', function(e) {
-  e.preventDefault(); // stops the page from refreshing on submit
+  e.preventDefault();
 
   const amountInput = document.getElementById('amount');
   const amountValue = amountInput.value.trim();
   const errorDiv = document.getElementById('amountError');
 
-  // Must be a number with 0, 1, or 2 decimal places
   const validAmount = /^\d+(\.\d{1,2})?$/;
 
   if (!validAmount.test(amountValue)) {
     errorDiv.style.display = 'block';
-    return; // stop here, don't save
+    return;
   }
   errorDiv.style.display = 'none';
 
   const entry = {
     type: currentType,
     date: document.getElementById('date').value,
-    amount: parseFloat(document.getElementById('amount').value),
+    amount: parseFloat(amountValue),
     description: document.getElementById('description').value,
     category: document.getElementById('category').value
   };
@@ -40,51 +55,61 @@ document.getElementById('entryForm').addEventListener('submit', function(e) {
   updateMonthlyNet();
 });
 
-function restrictAmount(input) {
-  // Remove anything that isn't a digit or a decimal point
-  let value = input.value.replace(/[^\d.]/g, '');
-
-  // Allow only one decimal point
-  const parts = value.split('.');
-  if (parts.length > 2) {
-    value = parts[0] + '.' + parts.slice(1).join('');
-  }
-
-  // Limit to 2 digits after the decimal point
-  if (value.includes('.')) {
-    const [whole, decimal] = value.split('.');
-    value = whole + '.' + decimal.slice(0, 2);
-  }
-
-  input.value = value;
-}
-
-function renderEntries() {
-  const entries = JSON.parse(localStorage.getItem('entries')) || [];
-  const listDiv = document.getElementById('entryList');
-
-  listDiv.innerHTML = entries.map((e, index) => `
-    <p>
-      ${e.date} — ${e.type === 'income' ? '+' : '-'}$${e.amount.toFixed(2)}
-      (${e.category}): ${e.description}
-      <button onclick="deleteEntry(${index})" class="delete-btn">✕</button>
-    </p>
-  `).join('');
-}
-
 function deleteEntry(index) {
   const entries = JSON.parse(localStorage.getItem('entries')) || [];
-  entries.splice(index, 1); // removes 1 item at that position
+  entries.splice(index, 1);
   localStorage.setItem('entries', JSON.stringify(entries));
 
   renderEntries();
   updateMonthlyNet();
 }
 
+function monthLabel(dateStr) {
+  // dateStr looks like "2026-08-25" -- turn it into "August 2026"
+  const [year, month] = dateStr.split('-');
+  const date = new Date(year, month - 1, 1);
+  return date.toLocaleString('default', { month: 'long', year: 'numeric' });
+}
+
+function renderEntries() {
+  const entries = JSON.parse(localStorage.getItem('entries')) || [];
+
+  // Keep track of each entry's original position in localStorage,
+  // since we need that index for deleteEntry to still work after sorting
+  const withIndex = entries.map((e, i) => ({ ...e, originalIndex: i }));
+
+  // Sort newest date first
+  withIndex.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const listDiv = document.getElementById('entryList');
+
+  let html = '';
+  let lastMonth = null;
+
+  withIndex.forEach(e => {
+    const label = monthLabel(e.date);
+
+    if (label !== lastMonth) {
+      html += `<h3>${label}</h3>`;
+      lastMonth = label;
+    }
+
+    html += `
+      <p>
+        ${e.date} — ${e.type === 'income' ? '+' : '-'}$${e.amount.toFixed(2)}
+        (${e.category}): ${e.description}
+        <button onclick="deleteEntry(${e.originalIndex})" class="delete-btn">✕</button>
+      </p>
+    `;
+  });
+
+  listDiv.innerHTML = html;
+}
+
 function updateMonthlyNet() {
   const entries = JSON.parse(localStorage.getItem('entries')) || [];
   const now = new Date();
-  const currentMonth = now.toISOString().slice(0, 7); // "2026-08"
+  const currentMonth = now.toISOString().slice(0, 7);
 
   const monthEntries = entries.filter(e => e.date.startsWith(currentMonth));
 
@@ -95,6 +120,5 @@ function updateMonthlyNet() {
   document.getElementById('monthlyNet').textContent = `$${net.toFixed(2)}`;
 }
 
-// Run these when the page first loads
 renderEntries();
 updateMonthlyNet();
