@@ -1,8 +1,20 @@
 let currentType = 'expense';
 
+const expenseCategories = ['food', 'shopping', 'school', 'rent', 'other'];
+const incomeCategories = ['paycheck', 'gift', 'refund', 'other'];
+
 function showForm(type) {
   currentType = type;
-  document.getElementById('entryForm').style.display = 'block';
+  const form = document.getElementById('entryForm');
+  form.style.display = 'block';
+
+  const categorySelect = document.getElementById('category');
+  const categories = type === 'expense' ? expenseCategories : incomeCategories;
+
+  // Clear existing options, then rebuild from the right list
+  categorySelect.innerHTML = categories
+    .map(cat => `<option value="${cat}">${cat.charAt(0).toUpperCase() + cat.slice(1)}</option>`)
+    .join('');
 }
 
 function restrictAmount(input) {
