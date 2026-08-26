@@ -63,10 +63,12 @@ function renderEntries() {
   const entries = JSON.parse(localStorage.getItem('entries')) || [];
   const listDiv = document.getElementById('entryList');
 
-  listDiv.innerHTML = entries.map(e => `
-    <p>${e.date} — ${e.type === 'income' ? '+' : '-'}$${e.amount} 
-    (${e.category}): ${e.description}</p>
-    <button onclick="deleteEntry(${index})" class="delete-btn">x</button>
+  listDiv.innerHTML = entries.map((e, index) => `
+    <p>
+      ${e.date} — ${e.type === 'income' ? '+' : '-'}$${e.amount.toFixed(2)}
+      (${e.category}): ${e.description}
+      <button onclick="deleteEntry(${index})" class="delete-btn">✕</button>
+    </p>
   `).join('');
 }
 
