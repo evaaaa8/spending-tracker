@@ -52,6 +52,7 @@ document.getElementById('entryForm').addEventListener('submit', function(e) {
   document.getElementById('entryForm').style.display = 'none';
 
   renderEntries();
+  renderCharts();
   updateMonthlyNet();
 });
 
@@ -61,6 +62,7 @@ function deleteEntry(index) {
   localStorage.setItem('entries', JSON.stringify(entries));
 
   renderEntries();
+  renderCharts();
 }
 
 function monthLabel(dateStr) {
@@ -127,4 +129,69 @@ function updateMonthlyNet() {
   document.getElementById('monthlyNet').textContent = `$${net.toFixed(2)}`;
 }
 
+let lineChartInstance = null;
+let pieChartInstance = null;
+
+function renderCharts() {
+  const entries = JSON.parse(localStorage.getItem('entries')) || [];
+
+  // ---- LINE CHART: total spending per month ----
+  const spendingByMonth = {};
+
+  entries.forEach(e => {
+    if (e.type !== 'expense') return; // only count expenses
+    const label = monthLabel(e.date);
+    spendingByMonth[label] = (spendingByMonth[label] || 0) + e.amount;
+  });
+
+  // Sort chronologically (oldest to newest) for a left-to-right timeline
+  const sortedMonths = Object.keys(spendingByMonth).sort((a, b) => {
+    return new Date(a) - new Date(b);
+  });
+
+  const lineData = sortedMonths.map(m => spendingByMonth[m]);
+
+  if (lineChartInstance) lineChartInstance.destroy(); // clear old chart before redrawing
+
+  lineChartInstance = new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: {
+      labels: sortedMonths,
+      datasets: [{
+        label: 'Spending per Month',
+        data: lineData,
+        borderColor: 'red',
+        fill: false
+      }]
+    }
+  });
+
+  // ---- PIE CHART: percentage spent per category (this year) ----
+  const currentYear = new Date().getFullYear().toString();
+  const categoryTotals = {};
+
+  entries.forEach(e => {
+    if (e.type !== 'expense') return;
+    if (!e.date.startsWith(currentYear)) return; // only this year
+    categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.amount;
+  });
+
+  const categoryLabels = Object.keys(categoryTotals);
+  const categoryData = Object.values(categoryTotals);
+
+  if (pieChartInstance) pieChartInstance.destroy();
+
+  pieChartInstance = new Chart(document.getElementById('pieChart'), {
+    type: 'pie',
+    data: {
+      labels: categoryLabels,
+      datasets: [{
+        data: categoryData,
+        backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22']
+      }]
+    }
+  });
+}
+
 renderEntries();
+renderCharts();
