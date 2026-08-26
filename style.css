@@ -1,3 +1,12 @@
 h1 {
     text-align: center;
 }
+
+.delete-btn {
+  color: red;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 8px;
+}

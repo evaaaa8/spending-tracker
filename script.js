@@ -40,6 +40,25 @@ document.getElementById('entryForm').addEventListener('submit', function(e) {
   updateMonthlyNet();
 });
 
+function restrictAmount(input) {
+  // Remove anything that isn't a digit or a decimal point
+  let value = input.value.replace(/[^\d.]/g, '');
+
+  // Allow only one decimal point
+  const parts = value.split('.');
+  if (parts.length > 2) {
+    value = parts[0] + '.' + parts.slice(1).join('');
+  }
+
+  // Limit to 2 digits after the decimal point
+  if (value.includes('.')) {
+    const [whole, decimal] = value.split('.');
+    value = whole + '.' + decimal.slice(0, 2);
+  }
+
+  input.value = value;
+}
+
 function renderEntries() {
   const entries = JSON.parse(localStorage.getItem('entries')) || [];
   const listDiv = document.getElementById('entryList');
@@ -47,6 +66,7 @@ function renderEntries() {
   listDiv.innerHTML = entries.map(e => `
     <p>${e.date} — ${e.type === 'income' ? '+' : '-'}$${e.amount} 
     (${e.category}): ${e.description}</p>
+    <button onclick="deleteEntry(${index})" class="delete-btn">x</button>
   `).join('');
 }
 
