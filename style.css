@@ -99,6 +99,12 @@ h1 {
   box-shadow: #35664f 0px 3px 2px,#000 0px 3px 5px;
 }
 
+.button-row {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
 #entryForm {
   max-width: 350px;
   margin: 15px auto;
