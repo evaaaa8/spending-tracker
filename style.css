@@ -76,7 +76,7 @@ h1 {
   --bg: #35664f;
   --text-color: #fff;
   position: relative;
-  width: 150px;
+  width: 100px;
   border: none;
   background: var(--bg);
   color: var(--text-color);
