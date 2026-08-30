@@ -98,3 +98,14 @@ button:active {
   top: 4px;
   box-shadow: #35664f 0px 3px 2px,#000 0px 3px 5px;
 }
+
+#entryForm {
+  max-width: 350px;
+  margin: 15px auto;
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
