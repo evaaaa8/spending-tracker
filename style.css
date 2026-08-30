@@ -72,7 +72,7 @@ h1 {
 }
 
 /* From Uiverse.io by satyamchaudharydev */ 
-button {
+.add-btn {
   --bg: #35664f;
   --text-color: #fff;
   position: relative;
@@ -90,11 +90,11 @@ button {
   box-shadow: #2c5e3a 0px 7px 2px, #000 0px 8px 5px;
 }
 
-button:hover {
+.add-btn:hover {
   opacity: 1;
 }
 
-button:active {
+.add-btn:active {
   top: 4px;
   box-shadow: #35664f 0px 3px 2px,#000 0px 3px 5px;
 }

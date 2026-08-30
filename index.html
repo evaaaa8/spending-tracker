@@ -10,8 +10,8 @@
 <h1 style="text-align: center;">Spending Tracker</h1>
 
 <div style="text-align: center;">
-<button onclick="showForm('expense')">Add Expense</button>
-<button onclick="showForm('income')">Add Income</button>
+<button onclick="showForm('expense')" class="add-btn">Add Expense</button>
+<button onclick="showForm('income')" class="add-btn">Add Income</button>
 </div>
 
 <form id="entryForm" style="display: none;">
@@ -20,7 +20,7 @@
 <div id="amountError" style="color: red; display: none;">Enter a valid number with up to 2 decimal places (e.g. 10, 10.5, or 10.50)</div>
 <input type="text" id="description" placeholder="What was it for?" required>
 <select id="category"></select>
-<button type="submit">Save</button>
+<button type="submit" class="save-btn">Save</button>
 </form>
 
 <h2 style="text-align: center;">Yearly Statistics</h2>
